@@ -210,7 +210,8 @@ class Database extends Config
         $this->default['encrypt'] = filter_var(env('database.default.encrypt', $this->default['encrypt']), FILTER_VALIDATE_BOOLEAN);
         $this->default['compress'] = filter_var(env('database.default.compress', $this->default['compress']), FILTER_VALIDATE_BOOLEAN);
         $this->default['strictOn'] = filter_var(env('database.default.strictOn', $this->default['strictOn']), FILTER_VALIDATE_BOOLEAN);
-        $this->default['port'] = env('database.default.port', $this->default['port']);
+        $port = env('database.default.port', $this->default['port']);
+        $this->default['port'] = is_numeric($port) ? (int) $port : $this->default['port'];
         $this->default['numberNative'] = filter_var(env('database.default.numberNative', $this->default['numberNative']), FILTER_VALIDATE_BOOLEAN);
         $this->default['foundRows'] = filter_var(env('database.default.foundRows', $this->default['foundRows']), FILTER_VALIDATE_BOOLEAN);
 
