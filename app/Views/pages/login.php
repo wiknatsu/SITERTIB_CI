@@ -229,6 +229,8 @@
 
           </form>
 
+          <a href="<?= base_url(); ?>" class="btn-secondary w-full py-3.5 rounded-xl font-headline font-semibold text-base flex items-center justify-center gap-2 mt-3">Kembali ke Beranda</a>
+
           <p class="text-caption text-center mt-7" style="color: var(--text-soft);">
             Butuh bantuan? Hubungi <a href="#" class="text-secondary hover:underline">Admin Sekolah</a>
           </p>
