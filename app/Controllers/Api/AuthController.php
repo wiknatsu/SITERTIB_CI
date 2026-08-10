@@ -97,6 +97,8 @@ class AuthController extends BaseController
             $user['guru'] = model('GuruModel')->find($user['guru_id']);
         }
 
+        unset($user['password']);
+
         return $this->respond($user);
     }
 }
