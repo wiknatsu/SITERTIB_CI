@@ -23,6 +23,8 @@ $routes->group('api', ['namespace' => 'App\Controllers\Api'], static function ($
     $routes->group('', ['filter' => 'auth'], static function ($routes) {
         $routes->post('logout', 'AuthController::logout');
         $routes->get('user', 'AuthController::me');
+        $routes->get('system/backup', 'SystemController::backup');
+        $routes->post('system/restore', 'SystemController::restore');
 
         $routes->get('murids', 'MuridController::index');
         $routes->get('murids/(:num)', 'MuridController::show/$1');

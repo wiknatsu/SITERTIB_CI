@@ -34,8 +34,8 @@
         <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
       </div>
       <h3 class="text-h3 mb-2">Backup Database</h3>
-      <p class="text-body mb-8" style="color: var(--text-soft); flex: 1;">Unduh seluruh data sistem saat ini ke dalam bentuk file SQLite. Disarankan untuk melakukan backup secara rutin.</p>
-      
+      <p class="text-body mb-8" style="color: var(--text-soft); flex: 1;">Unduh seluruh data sistem saat ini ke dalam file backup database. Di lingkungan produksi, backup akan menggunakan MySQL.</p>
+       
       <button class="btn btn-secondary w-full" onclick="downloadBackup()">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
         Download Backup Sekarang
@@ -52,7 +52,7 @@
       
       <form id="restoreForm" class="mt-auto" onsubmit="submitRestore(event)">
         <div class="form-group">
-          <input type="file" id="backupFile" accept=".sqlite,.db" class="form-input" required>
+          <input type="file" id="backupFile" accept=".sqlite,.db,.sql,.sql.gz" class="form-input" required>
         </div>
         <button type="submit" class="btn btn-primary w-full" id="restoreBtn">
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
@@ -75,7 +75,9 @@
       const objUrl = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = objUrl;
-      link.setAttribute('download', 'database_backup.sqlite');
+      const disposition = res.headers.get('content-disposition') || '';
+      const match = disposition.match(/filename="?([^";]+)"?/);
+      link.setAttribute('download', match ? match[1] : 'database_backup.sqlite');
       document.body.appendChild(link);
       link.click();
       link.remove();
