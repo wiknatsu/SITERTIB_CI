@@ -94,16 +94,24 @@ class preload
             );
 
             foreach ($phpFiles as $key => $file) {
+                $filePath = $file[0];
+
+                if (! is_file($filePath)) {
+                    continue;
+                }
+
+                $normalizedPath = str_replace('\\', '/', $filePath);
+
                 foreach ($path['exclude'] as $exclude) {
-                    if (str_contains($file[0], $exclude)) {
+                    if (str_contains($normalizedPath, str_replace('\\', '/', $exclude))) {
                         continue 2;
                     }
                 }
 
-                require_once $file[0];
+                require_once $filePath;
                 // Uncomment only for debugging (to inspect which files are included).
                 // Never use this in production - preload scripts must not generate output.
-                // echo 'Loaded: ' . $file[0] . "\n";
+                // echo 'Loaded: ' . $filePath . "\n";
             }
         }
     }
