@@ -111,18 +111,43 @@ class SystemController extends BaseController
         }
 
         $tempPath = $backupFile->getTempName();
-        if (!is_file($tempPath) || substr(file_get_contents($tempPath, false, null, 0, 15), 0, 15) !== 'SQLite format 3') {
+        if (!is_file($tempPath)) {
+            return $this->failValidationErrors(['file' => 'File backup tidak ditemukan di server.']);
+        }
+
+        $header = @file_get_contents($tempPath, false, null, 0, 16);
+        if ($header === false || strpos($header, 'SQLite format 3') !== 0) {
             return $this->failValidationErrors(['file' => 'File backup bukan database SQLite yang valid.']);
         }
 
         $config = config('Database')->default;
         $destination = $this->resolveSqlitePath($config);
-        if (is_file($destination) && !is_writable($destination)) {
-            return $this->fail('Tidak dapat menimpa file database saat ini.', ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
-        }
 
-        if (is_file($destination) && !unlink($destination)) {
-            return $this->fail('Gagal menghapus file database lama.', ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+        if (is_file($destination)) {
+            $this->closeSqliteConnection();
+
+            if (!is_writable($destination)) {
+                return $this->fail('Tidak dapat menimpa file database saat ini.', ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+            }
+
+            $maxAttempts = 5;
+            $attempt = 0;
+            $deleted = false;
+            while ($attempt < $maxAttempts && ! $deleted) {
+                clearstatcache(true, $destination);
+
+                if (is_file($destination) && $this->deleteFileQuietly($destination)) {
+                    $deleted = true;
+                    break;
+                }
+
+                $attempt++;
+                usleep(200000);
+            }
+
+            if (! $deleted) {
+                return $this->fail('Database sedang digunakan oleh proses lain atau tidak dapat ditimpa. Tutup koneksi aktif lalu coba lagi.', ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
+            }
         }
 
         if (!$backupFile->move(dirname($destination), basename($destination))) {
@@ -169,7 +194,7 @@ class SystemController extends BaseController
             return $this->respond(['message' => 'Database berhasil dipulihkan.']);
         }
 
-        $success = $this->restoreMySQLUsingConnection($sqlPath);
+        $success = $this->restoreMySQLUsingConnection($sqlPath, $credentials);
         if ($extension === 'gz' && is_file($sqlPath)) {
             @unlink($sqlPath);
         }
@@ -189,6 +214,35 @@ class SystemController extends BaseController
         }
 
         return $path;
+    }
+
+    private function closeSqliteConnection(): void
+    {
+        try {
+            $db = db_connect();
+            if (method_exists($db, 'close')) {
+                $db->close();
+            }
+        } catch (\Throwable $e) {
+            // ignore; file may still be locked by another process, and we will report that back to the caller.
+        }
+    }
+
+    private function deleteFileQuietly(string $path): bool
+    {
+        $previousHandler = set_error_handler(static fn() => true);
+
+        try {
+            if (! is_file($path)) {
+                return true;
+            }
+
+            return @unlink($path);
+        } finally {
+            if ($previousHandler !== null) {
+                restore_error_handler();
+            }
+        }
     }
 
     private function resolveMySQLCredentials(array $config): array
@@ -320,25 +374,49 @@ class SystemController extends BaseController
         fclose($handle);
     }
 
-    private function restoreMySQLUsingConnection(string $sqlPath): bool
+    private function restoreMySQLUsingConnection(string $sqlPath, array $credentials = []): bool
     {
-        $db = db_connect();
-        $mysqli = $db->connID;
-        if (! $mysqli) {
+        // Use a dedicated mysqli connection built from provided credentials so
+        // we don't interfere with the framework's shared DB connection.
+        $host = $credentials['hostname'] ?? '127.0.0.1';
+        $user = $credentials['username'] ?? '';
+        $pass = $credentials['password'] ?? '';
+        $dbName = $credentials['database'] ?? '';
+        $port = $credentials['port'] ?? 3306;
+        $charset = $credentials['charset'] ?? 'utf8mb4';
+
+        $mysqli = mysqli_init();
+        if ($mysqli === false) {
             return false;
+        }
+
+        // Suppress warnings and check connection result ourselves
+        $connected = @$mysqli->real_connect($host, $user, $pass, $dbName, (int) $port);
+        if (! $connected) {
+            return false;
+        }
+
+        if ($charset) {
+            @$mysqli->set_charset($charset);
         }
 
         $sql = file_get_contents($sqlPath);
         if ($sql === false) {
+            $mysqli->close();
             return false;
         }
 
         $sql = trim($sql);
         if ($sql === '') {
+            $mysqli->close();
             return false;
         }
 
-        if (! $mysqli->multi_query($sql)) {
+        // Temporarily disable foreign key checks for import.
+        $sqlToRun = "SET FOREIGN_KEY_CHECKS=0;\n" . $sql . "\nSET FOREIGN_KEY_CHECKS=1;";
+
+        if (! $mysqli->multi_query($sqlToRun)) {
+            $mysqli->close();
             return false;
         }
 
@@ -348,6 +426,7 @@ class SystemController extends BaseController
             }
         } while ($mysqli->more_results() && $mysqli->next_result());
 
+        $mysqli->close();
         return true;
     }
 
