@@ -3,20 +3,20 @@
 <?= $this->section('custom-css') ?>
 <style>
   .card { background-color: var(--surface-base); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 24px; transition: all 0.2s ease; }
-  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 10px; font-weight: 600; font-size: 14px; transition: all 0.2s ease; cursor: pointer; border: none; }
-  .btn-primary { background-color: #E11D48; color: #fff; box-shadow: 0 8px 20px -8px rgba(225, 29, 72, 0.5); }
-  .btn-primary:hover { background-color: #BE123C; transform: translateY(-1px); }
-  .btn-secondary { background-color: var(--surface-soft); color: var(--text-strong); border: 1px solid var(--border-subtle); }
-  .btn-secondary:hover { background-color: var(--border-subtle); }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 10px; font-weight: 600; font-size: 14px; transition: all 0.2s ease; cursor: pointer; border: none; background-color: var(--surface-soft); box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.18); }
+  .btn-primary { background: linear-gradient(135deg, #F43F5E 0%, #E11D48 100%); color: #fff; box-shadow: 0 10px 24px -12px rgba(225, 29, 72, 0.7); }
+  .btn-primary:hover { background: linear-gradient(135deg, #E11D48 0%, #BE123C 100%); transform: translateY(-1px); }
+  .btn-secondary { background-color: var(--surface-soft); color: var(--text-strong); border: 1px solid var(--border-subtle); box-shadow: inset 0 1px 0 rgba(255,255,255,0.5); }
+  .btn-secondary:hover { background-color: rgba(148, 163, 184, 0.12); }
   .btn-danger { background-color: #DC2626; color: #fff; }
   .btn-danger:hover { background-color: #B91C1C; }
   .btn-sm { padding: 6px 12px; font-size: 13px; border-radius: 8px; }
-  .btn-icon { padding: 8px; border-radius: 8px; background: transparent; border: 1px solid var(--border-subtle); cursor: pointer; color: var(--text-soft); transition: all 0.2s; }
-  .btn-icon:hover { background: var(--surface-soft); color: var(--text-strong); }
+  .btn-icon { padding: 8px; border-radius: 8px; background: var(--surface-soft); border: 1px solid var(--border-subtle); cursor: pointer; color: var(--text-soft); transition: all 0.2s; }
+  .btn-icon:hover { background: rgba(148, 163, 184, 0.12); color: var(--text-strong); }
   .btn-icon.danger:hover { background: rgba(220,38,38,0.1); color: #DC2626; border-color: rgba(220,38,38,0.3); }
 
-  .search-input { background: var(--surface-soft); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 10px 16px 10px 40px; font-size: 14px; color: var(--text-strong); width: 280px; transition: all 0.2s; }
-  .search-input:focus { outline: none; border-color: #E11D48; box-shadow: 0 0 0 3px rgba(225,29,72,0.1); }
+  .search-input { background: linear-gradient(180deg, rgba(255,255,255,0.96), var(--surface-soft)); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 10px 16px 10px 40px; font-size: 14px; color: var(--text-strong); width: 280px; transition: all 0.2s; box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04); }
+  .search-input:focus { outline: none; border-color: #E11D48; box-shadow: 0 0 0 3px rgba(225,29,72,0.1), inset 0 1px 2px rgba(15, 23, 42, 0.04); }
 
   .data-table { width: 100%; border-collapse: separate; border-spacing: 0; }
   .data-table thead th { text-align: left; padding: 12px 16px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); border-bottom: 1px solid var(--border-subtle); font-family: 'DM Sans'; }
