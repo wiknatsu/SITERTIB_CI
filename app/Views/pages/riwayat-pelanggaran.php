@@ -61,6 +61,10 @@
     <input type="date" id="filterTglMulai" class="filter-select text-caption" placeholder="Mulai">
     <span class="text-muted text-sm">s/d</span>
     <input type="date" id="filterTglSelesai" class="filter-select text-caption" placeholder="Selesai">
+    <select id="filterKelas" class="filter-select text-caption">
+      <option value="">Semua Kelas</option>
+    </select>
+    <input type="search" id="searchInput" class="search-input" placeholder="Cari siswa, pelanggaran, pelapor...">
     
     <button class="btn btn-primary btn-sm h-10" onclick="applyFilter()">Terapkan Filter</button>
     
@@ -196,6 +200,12 @@
       
       document.getElementById('formMurid').innerHTML = '<option value="">Pilih Siswa</option>' + optMurid;
       document.getElementById('formPelanggaran').innerHTML = '<option value="">Pilih Pelanggaran</option>' + optPelanggaran;
+
+      // populate class filter options (unique kelas from murid list)
+      const kelasList = Array.from(new Set(murids.map(m => m.kelas).filter(k => k && k !== ''))).sort();
+      const kelasOptions = ['<option value="">Semua Kelas</option>'].concat(kelasList.map(k => `<option value="${k}">${k}</option>`)).join('');
+      const fk = document.getElementById('filterKelas');
+      if (fk) fk.innerHTML = kelasOptions;
     } catch(e) {
       console.warn('Gagal load options', e);
     }
@@ -259,20 +269,39 @@
     try {
       const tglMulai = document.getElementById('filterTglMulai').value;
       const tglSelesai = document.getElementById('filterTglSelesai').value;
-      
+      const kelas = (document.getElementById('filterKelas') || {}).value || '';
+      const search = (document.getElementById('searchInput') || {}).value.trim().toLowerCase();
+
       let url = '/api/pelanggaran-murids';
       let params = [];
       if(tglMulai) params.push(`tanggal_from=${tglMulai}`);
       if(tglSelesai) params.push(`tanggal_to=${tglSelesai}`);
+      if(kelas) params.push(`kelas=${encodeURIComponent(kelas)}`);
       if(params.length > 0) url += '?' + params.join('&');
 
       const res = await fetch(url, { headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${accessToken}` } });
       if (!res.ok) throw new Error('Gagal memuat data');
       const data = await res.json();
       allData = Array.isArray(data) ? data : (data.data || []);
-      
-      document.getElementById('subtitleCount').textContent = `Total: ${allData.length} catatan pelanggaran`;
-      window.tableManagers['rwPagination'].setData(allData);
+
+      // Client-side search across several fields
+      let filtered = allData;
+      if (search) {
+        filtered = allData.filter(d => {
+          const hay = [
+            d.murid ? d.murid.nama : '',
+            d.murid ? d.murid.kelas : '',
+            d.pelanggaran ? d.pelanggaran.nama_pelanggaran : '',
+            d.pelanggaran ? d.pelanggaran.kategori_pelanggaran : '',
+            d.pelapor || '',
+            d.keterangan || ''
+          ].join(' ').toLowerCase();
+          return hay.indexOf(search) !== -1;
+        });
+      }
+
+      document.getElementById('subtitleCount').textContent = `Total: ${filtered.length} catatan pelanggaran`;
+      window.tableManagers['rwPagination'].setData(filtered);
     } catch (err) {
       console.error(err);
       showToast('error', 'Gagal Memuat', 'Tidak dapat mengambil data riwayat.');
@@ -282,6 +311,16 @@
 
   function applyFilter() {
     fetchData();
+  }
+
+  // Debounce search input
+  let _searchTimer = null;
+  const _si = document.getElementById('searchInput');
+  if (_si) {
+    _si.addEventListener('input', () => {
+      clearTimeout(_searchTimer);
+      _searchTimer = setTimeout(() => fetchData(), 300);
+    });
   }
 
   // ============= ADMIN MODALS =============
@@ -392,8 +431,9 @@
     isAdmin = user.role === 'admin';
     if(isAdmin) {
       document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
-      loadOptions(); // Load options for edit modal
     }
+    // Load options (murid, kelas, pelanggaran) for filters and admin modals
+    loadOptions();
     
     initTableManager();
     fetchData();
