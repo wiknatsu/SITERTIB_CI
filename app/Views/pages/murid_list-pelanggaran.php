@@ -253,50 +253,137 @@
       const totalPelanggaran = data.total_pelanggaran ?? pelanggaran.length;
 
       resultContainer.innerHTML = `
-        <div class="glass rounded-2xl p-6 lg:p-8">
-          <div class="flex items-center gap-4 pb-6 mb-6 border-b" style="border-color: var(--border-subtle);">
-            <div class="w-16 h-16 rounded-full bg-secondary/20 grid place-items-center text-secondary font-headline font-bold text-2xl">
-              ${(murid?.nama || 'M').charAt(0).toUpperCase()}
+      resultContainer.innerHTML = `
+        <div class="glass rounded-3xl p-6 lg:p-10 shadow-xl shadow-slate-200/50 dark:shadow-none border border-white/50 dark:border-slate-800">
+          
+          <!-- Header Profile -->
+          <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-8 mb-8 border-b border-slate-200 dark:border-slate-700/60">
+            <div class="flex items-center gap-5 sm:gap-6">
+              <div class="relative flex-shrink-0">
+                <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-primary to-secondary p-[2px] shadow-lg shadow-primary/20">
+                  <div class="w-full h-full bg-white dark:bg-slate-900 rounded-[14px] flex items-center justify-center">
+                    <span class="text-transparent bg-clip-text bg-gradient-to-br from-primary to-secondary font-headline font-bold text-3xl">
+                      ${(murid?.nama || 'M').charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                </div>
+                <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center shadow-md">
+                  <div class="w-3.5 h-3.5 bg-success rounded-full ring-2 ring-white dark:ring-slate-800"></div>
+                </div>
+              </div>
+              <div>
+                <h2 class="text-2xl sm:text-3xl font-headline font-bold text-slate-800 dark:text-white mb-2 leading-tight">${murid?.nama || '-'}</h2>
+                <div class="flex flex-wrap items-center gap-3 text-sm font-medium text-slate-500 dark:text-slate-400">
+                  <span class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-lg">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path></svg> 
+                    NIS: <span class="font-semibold text-slate-700 dark:text-slate-300">${murid?.nis || nis}</span>
+                  </span>
+                  <span class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-lg">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg> 
+                    Kelas: <span class="font-semibold text-slate-700 dark:text-slate-300">${murid?.kelas || '-'}</span>
+                  </span>
+                </div>
+              </div>
             </div>
-            <div>
-              <p class="text-caption" style="color: var(--text-soft);">NIS</p>
-              <h2 class="text-h2">${murid?.nis || nis}</h2>
-              <p class="text-body mt-1" style="color: var(--text-soft);">Nama: <span class="font-semibold">${murid?.nama || '-'}</span></p>
-              <p class="text-body mt-1" style="color: var(--text-soft);">Kelas: <span class="font-semibold">${murid?.kelas || '-'}</span></p>
+            
+            <div class="w-full md:w-auto bg-slate-50 dark:bg-slate-800/80 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-700 text-center md:text-right min-w-[140px]">
+              <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Total Pelanggaran</p>
+              <div class="flex items-baseline justify-center md:justify-end gap-1.5">
+                <span class="text-4xl font-headline font-extrabold ${totalPelanggaran > 0 ? 'text-error' : 'text-success'} leading-none">${totalPelanggaran}</span>
+                <span class="text-sm font-semibold text-slate-500">Kasus</span>
+              </div>
             </div>
           </div>
 
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-h3">Daftar Riwayat Pelanggaran</h3>
-            <span class="badge ${totalPelanggaran > 0 ? 'badge-warning' : 'badge-success'}">${totalPelanggaran} Pelanggaran</span>
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+            <div>
+              <h3 class="text-xl font-headline font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                <svg class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Riwayat Kedisiplinan
+              </h3>
+              <p class="text-sm text-slate-500 mt-1">Catatan pelanggaran diurutkan dari yang terbaru.</p>
+            </div>
+            ${totalPelanggaran > 0 ? `
+              <div class="bg-error/10 text-error px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 border border-error/20">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a1 1 0 00.9 1.5h16.56a1 1 0 00.9-1.5L13.71 3.86a1 1 0 00-1.72 0z"></path></svg>
+                Perlu Perhatian
+              </div>
+            ` : ''}
           </div>
 
           ${totalPelanggaran > 0 ? `
-            <div class="space-y-3">
-              ${pelanggaran.map(item => `
-                <div class="rounded-xl border p-4" style="border-color: var(--border-subtle); background: var(--surface-soft);">
-                  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
-                    <div>
-                      <p class="font-headline font-semibold">${item.pelanggaran?.nama_pelanggaran || 'Pelanggaran'}</p>
-                      <p class="text-caption" style="color: var(--text-soft);">${item.tanggal_pelanggaran ? new Date(item.tanggal_pelanggaran).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-'}</p>
-                    </div>
-                    <span class="badge badge-error">${item.pelanggaran?.kategori_pelanggaran || 'Pelanggaran'}</span>
+            <div class="space-y-0 relative mt-4">
+              ${pelanggaran.map((item, index) => `
+                <div class="relative pl-8 sm:pl-12 pb-8 last:pb-0 group">
+                  <!-- Timeline Line -->
+                  ${index !== pelanggaran.length - 1 ? `<div class="absolute left-[11px] sm:left-[19px] top-8 bottom-[-8px] w-0.5 bg-slate-200 dark:bg-slate-700 group-hover:bg-error/40 transition-colors duration-300 rounded-full"></div>` : ''}
+                  
+                  <!-- Timeline Dot -->
+                  <div class="absolute left-0 sm:left-2 top-3 w-6 h-6 rounded-full border-4 border-white dark:border-slate-900 bg-error flex items-center justify-center shadow-sm z-10 group-hover:scale-125 transition-transform duration-300">
+                    <div class="w-1.5 h-1.5 bg-white rounded-full"></div>
                   </div>
-                  <p class="text-body" style="color: var(--text-soft);">${item.keterangan || 'Tidak ada keterangan.'}</p>
-                  <p class="text-caption mt-2" style="color: var(--text-soft);">Pelapor: ${item.pelapor || '-'} · Tahun Ajaran: ${item.tahun_ajaran?.nama || '-'}${item.tahun_ajaran?.semester ? ' (' + item.tahun_ajaran.semester.charAt(0).toUpperCase() + item.tahun_ajaran.semester.slice(1) + ')' : ''}</p>
+
+                  <!-- Card -->
+                  <div class="bg-white dark:bg-slate-800/60 rounded-2xl border p-5 sm:p-6 shadow-sm hover:shadow-lg transition-all duration-300 border-slate-200 dark:border-slate-700 hover:border-error/40">
+                    
+                    <div class="flex flex-col gap-3 mb-4">
+                      <div class="flex items-center gap-2 flex-wrap">
+                         <span class="px-2.5 py-1 text-[11px] uppercase tracking-wider font-bold rounded-md bg-error/10 text-error border border-error/20">
+                           ${item.pelanggaran?.kategori_pelanggaran || 'Kategori'}
+                         </span>
+                         <span class="text-xs font-semibold flex items-center gap-1.5 text-slate-500 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-md border border-slate-200 dark:border-slate-700">
+                           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                           ${item.tanggal_pelanggaran ? new Date(item.tanggal_pelanggaran).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-'}
+                         </span>
+                      </div>
+                      <h4 class="font-headline font-semibold text-lg sm:text-xl text-slate-800 dark:text-slate-100 leading-snug">
+                        ${item.pelanggaran?.nama_pelanggaran || 'Pelanggaran Tidak Diketahui'}
+                      </h4>
+                    </div>
+                    
+                    <div class="bg-slate-50 dark:bg-slate-900/50 rounded-xl p-4 mb-5 border border-slate-100 dark:border-slate-800 relative overflow-hidden">
+                      <div class="absolute left-0 top-0 bottom-0 w-1 bg-error/50"></div>
+                      <p class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                        <span class="font-bold text-slate-800 dark:text-slate-200 block mb-1 text-[11px] uppercase tracking-wider">Keterangan:</span>
+                        ${item.keterangan ? item.keterangan : '<span class="italic text-slate-400">Tidak ada keterangan detail terkait kejadian ini.</span>'}
+                      </p>
+                    </div>
+                    
+                    <div class="flex flex-wrap items-center gap-4 sm:gap-8 pt-4 border-t border-slate-100 dark:border-slate-700/50">
+                       <div class="flex items-center gap-3 group/info">
+                          <div class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 group-hover/info:bg-primary/10 group-hover/info:text-primary transition-colors">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                          </div>
+                          <div>
+                            <p class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-0.5">Dilaporkan Oleh</p>
+                            <p class="text-xs font-bold text-slate-700 dark:text-slate-300">${item.pelapor || '-'}</p>
+                          </div>
+                       </div>
+                       <div class="w-px h-8 bg-slate-200 dark:bg-slate-700 hidden sm:block"></div>
+                       <div class="flex items-center gap-3 group/info">
+                          <div class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 group-hover/info:bg-primary/10 group-hover/info:text-primary transition-colors">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                          </div>
+                          <div>
+                            <p class="text-[10px] uppercase tracking-wider text-slate-400 font-bold mb-0.5">Tahun Ajaran</p>
+                            <p class="text-xs font-bold text-slate-700 dark:text-slate-300">${item.tahun_ajaran?.nama || '-'}${item.tahun_ajaran?.semester ? ' (' + item.tahun_ajaran.semester.charAt(0).toUpperCase() + item.tahun_ajaran.semester.slice(1) + ')' : ''}</p>
+                          </div>
+                       </div>
+                    </div>
+                  </div>
                 </div>
               `).join('')}
             </div>
           ` : `
-            <div class="empty-state py-12">
-              <div class="empty-state-icon" style="background: rgba(22, 163, 74, 0.1);">
-                <svg class="w-8 h-8 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <div class="empty-state py-16 px-4">
+              <div class="empty-state-icon mx-auto mb-6 w-20 h-20 bg-success/10 rounded-full flex items-center justify-center shadow-inner shadow-success/20">
+                <svg class="w-10 h-10 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
               </div>
-              <h3 class="text-h3 mb-1">Tidak Ada Riwayat Pelanggaran</h3>
-              <p class="text-body max-w-sm mx-auto" style="color: var(--text-soft);">
-                Siswa dengan NIS <span class="font-mono font-semibold">${murid?.nis || nis}</span> tercatat berkelakuan baik dan tidak memiliki pelanggaran.
+              <h3 class="text-2xl font-headline font-bold text-slate-800 dark:text-white mb-2 text-center">Tidak Ada Pelanggaran</h3>
+              <p class="text-body max-w-md mx-auto text-center leading-relaxed" style="color: var(--text-soft);">
+                Luar biasa! Siswa dengan NIS <span class="font-mono font-bold text-slate-700 dark:text-slate-300">${murid?.nis || nis}</span> tercatat berkelakuan baik dan bersih dari catatan pelanggaran tata tertib.
               </p>
             </div>
           `}
