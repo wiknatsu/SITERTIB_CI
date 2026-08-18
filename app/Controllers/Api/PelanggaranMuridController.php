@@ -26,7 +26,7 @@ class PelanggaranMuridController extends BaseController
             'nis' => $this->request->getGet('nis'),
         ];
 
-        return $this->respond($model->getByFilters($filters));
+        return $this->respond($model->getWithRelations($filters));
     }
 
     public function show($id = null)
@@ -51,7 +51,7 @@ class PelanggaranMuridController extends BaseController
         }
 
         $model = model(PelanggaranMuridModel::class);
-        $records = $model->where('murid_id', $murid['id'])->orderBy('tanggal_pelanggaran', 'DESC')->findAll();
+        $records = $model->getWithRelations(['murid_id' => $murid['id']]);
 
         return $this->respond([
             'murid' => $murid,

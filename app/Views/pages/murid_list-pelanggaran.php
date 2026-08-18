@@ -277,13 +277,13 @@
                 <div class="rounded-xl border p-4" style="border-color: var(--border-subtle); background: var(--surface-soft);">
                   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
                     <div>
-                      <p class="font-headline font-semibold">${item.pelanggaran?.nama || 'Pelanggaran'}</p>
+                      <p class="font-headline font-semibold">${item.pelanggaran?.nama_pelanggaran || 'Pelanggaran'}</p>
                       <p class="text-caption" style="color: var(--text-soft);">${item.tanggal_pelanggaran ? new Date(item.tanggal_pelanggaran).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-'}</p>
                     </div>
-                    <span class="badge badge-error">${item.pelanggaran?.kategori || 'Pelanggaran'}</span>
+                    <span class="badge badge-error">${item.pelanggaran?.kategori_pelanggaran || 'Pelanggaran'}</span>
                   </div>
                   <p class="text-body" style="color: var(--text-soft);">${item.keterangan || 'Tidak ada keterangan.'}</p>
-                  <p class="text-caption mt-2" style="color: var(--text-soft);">Pelapor: ${item.pelapor || '-'} · Tahun Ajaran: ${item.tahun_ajaran?.nama || '-'}</p>
+                  <p class="text-caption mt-2" style="color: var(--text-soft);">Pelapor: ${item.pelapor || '-'} · Tahun Ajaran: ${item.tahun_ajaran?.nama || '-'}${item.tahun_ajaran?.semester ? ' (' + item.tahun_ajaran.semester.charAt(0).toUpperCase() + item.tahun_ajaran.semester.slice(1) + ')' : ''}</p>
                 </div>
               `).join('')}
             </div>

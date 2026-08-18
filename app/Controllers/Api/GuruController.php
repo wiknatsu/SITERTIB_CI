@@ -16,8 +16,9 @@ class GuruController extends BaseController
         $model = model(GuruModel::class);
         $nama = $this->request->getGet('nama');
         $nip = $this->request->getGet('nip');
+        $search = $this->request->getGet('search');
 
-        return $this->respond($model->getByFilters($nama, $nip));
+        return $this->respond($model->getByFilters($nama, $nip, $search));
     }
 
     public function show($id = null)

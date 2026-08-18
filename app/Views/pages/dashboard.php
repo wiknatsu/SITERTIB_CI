@@ -176,10 +176,10 @@
       const [user, dashboardData] = await Promise.all([fetchUserProfile(), fetchDashboardStats()]);
 
       // Render User Info
-      const displayName = user.guru.nama;
+      const displayName = user.guru?.nama || user.username;
       document.getElementById('userName').textContent = displayName;
       document.getElementById('userRoleDisplay').textContent = user.role === 'admin' ? 'Administrator' : 'Guru';
-      document.getElementById('userNipDisplay').textContent = `NIP: ${user.guru.nip}`;
+      document.getElementById('userNipDisplay').textContent = `NIP: ${user.guru?.nip || '-'}`;
       document.getElementById('userAvatar').textContent = displayName.charAt(0).toUpperCase();
 
       // Render Stats

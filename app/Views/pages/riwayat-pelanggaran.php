@@ -64,6 +64,9 @@
     <select id="filterKelas" class="filter-select text-caption">
       <option value="">Semua Kelas</option>
     </select>
+    <select id="filterTahunAjaran" class="filter-select text-caption">
+      <option value="">Semua Tahun Ajaran</option>
+    </select>
     <input type="search" id="searchInput" class="search-input" placeholder="Cari siswa, pelanggaran, pelapor...">
     
     <button class="btn btn-primary btn-sm h-10" onclick="applyFilter()">Terapkan Filter</button>
@@ -98,13 +101,16 @@
           <th class="cursor-pointer select-none" data-sort="pelapor" onclick="window.tableManagers['rwPagination'].setSort('pelapor')">
             <div class="flex items-center gap-1">Pelapor <span class="sort-icon"></span></div>
           </th>
+          <th class="cursor-pointer select-none" data-sort="tahun_ajaran_nama" onclick="window.tableManagers['rwPagination'].setSort('tahun_ajaran_nama')">
+            <div class="flex items-center gap-1">Tahun Ajaran <span class="sort-icon"></span></div>
+          </th>
           <th style="width:100px;" class="admin-only hidden">Aksi</th>
         </tr>
       </thead>
       <tbody id="tableBody">
-        <tr><td colspan="7"><div class="skeleton" style="height:20px;width:100%;margin:8px 0;"></div></td></tr>
-        <tr><td colspan="7"><div class="skeleton" style="height:20px;width:100%;margin:8px 0;"></div></td></tr>
-        <tr><td colspan="7"><div class="skeleton" style="height:20px;width:100%;margin:8px 0;"></div></td></tr>
+        <tr><td colspan="8"><div class="skeleton" style="height:20px;width:100%;margin:8px 0;"></div></td></tr>
+        <tr><td colspan="8"><div class="skeleton" style="height:20px;width:100%;margin:8px 0;"></div></td></tr>
+        <tr><td colspan="8"><div class="skeleton" style="height:20px;width:100%;margin:8px 0;"></div></td></tr>
       </tbody>
     </table>
   </div>
@@ -186,14 +192,17 @@
 
   async function loadOptions() {
     try {
-      const [muridRes, pelRes] = await Promise.all([
+      const [muridRes, pelRes, taRes] = await Promise.all([
         fetch('/api/murids', { headers: { 'Authorization': `Bearer ${accessToken}` } }),
-        fetch('/api/pelanggarans', { headers: { 'Authorization': `Bearer ${accessToken}` } })
+        fetch('/api/pelanggarans', { headers: { 'Authorization': `Bearer ${accessToken}` } }),
+        fetch('/api/tahun-ajarans', { headers: { 'Authorization': `Bearer ${accessToken}` } })
       ]);
       const mData = await muridRes.json();
       const pData = await pelRes.json();
+      const taData = await taRes.json();
       const murids = Array.isArray(mData) ? mData : (mData.data || []);
       const pels = Array.isArray(pData) ? pData : (pData.data || []);
+      const tahunAjarans = Array.isArray(taData) ? taData : (taData.data || []);
       
       optMurid = murids.map(m => `<option value="${m.id}">${m.nama} (${m.kelas||'-'})</option>`).join('');
       optPelanggaran = pels.map(p => `<option value="${p.id}">[${p.kategori_pelanggaran}] ${p.nama_pelanggaran}</option>`).join('');
@@ -206,6 +215,13 @@
       const kelasOptions = ['<option value="">Semua Kelas</option>'].concat(kelasList.map(k => `<option value="${k}">${k}</option>`)).join('');
       const fk = document.getElementById('filterKelas');
       if (fk) fk.innerHTML = kelasOptions;
+
+      // populate tahun ajaran filter (show active year first)
+      const taOptions = ['<option value="">Semua Tahun Ajaran</option>'].concat(
+        tahunAjarans.map(ta => `<option value="${ta.id}"${ta.is_active == 1 ? ' selected' : ''}>${ta.nama} (${ta.semester ? ta.semester.charAt(0).toUpperCase() + ta.semester.slice(1) : ''})${ta.is_active == 1 ? ' — Aktif' : ''}</option>`)
+      ).join('');
+      const fta = document.getElementById('filterTahunAjaran');
+      if (fta) fta.innerHTML = taOptions;
     } catch(e) {
       console.warn('Gagal load options', e);
     }
@@ -229,6 +245,11 @@
       d.murid_kelas = d.murid ? d.murid.kelas : '';
       d.pelanggaran_nama = d.pelanggaran ? d.pelanggaran.nama_pelanggaran : '';
       d.pelanggaran_kategori = d.pelanggaran ? d.pelanggaran.kategori_pelanggaran : '';
+      d.tahun_ajaran_nama = d.tahun_ajaran ? d.tahun_ajaran.nama : '';
+
+      const taNama = d.tahun_ajaran ? d.tahun_ajaran.nama : '-';
+      const taSemester = d.tahun_ajaran && d.tahun_ajaran.semester ? d.tahun_ajaran.semester.charAt(0).toUpperCase() + d.tahun_ajaran.semester.slice(1) : '';
+      const taDisplay = taNama !== '-' ? `${taNama}${taSemester ? ' (' + taSemester + ')' : ''}` : '-';
 
       return `
       <tr>
@@ -238,6 +259,7 @@
         <td>${d.pelanggaran ? d.pelanggaran.nama_pelanggaran : '-'}</td>
         <td>${d.pelanggaran ? getBadge(d.pelanggaran.kategori_pelanggaran) : '-'}</td>
         <td>${d.pelapor || '-'}</td>
+        <td><span class="text-caption">${taDisplay}</span></td>
         ${isAdmin ? `
         <td>
           <div class="flex items-center gap-2">
@@ -254,7 +276,7 @@
 
     window.tableManagers['rwPagination'].emptyRenderFn = () => {
       document.getElementById('tableBody').innerHTML = `
-        <tr><td colspan="${isAdmin ? 7 : 6}">
+        <tr><td colspan="${isAdmin ? 9 : 8}">
           <div class="empty-state">
             <div class="empty-icon"><svg class="w-8 h-8" style="color:var(--text-muted);" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>
             <h3 class="text-h3 mb-1">Belum Ada Riwayat</h3>
@@ -270,6 +292,7 @@
       const tglMulai = document.getElementById('filterTglMulai').value;
       const tglSelesai = document.getElementById('filterTglSelesai').value;
       const kelas = (document.getElementById('filterKelas') || {}).value || '';
+      const tahunAjaranId = (document.getElementById('filterTahunAjaran') || {}).value || '';
       const search = (document.getElementById('searchInput') || {}).value.trim().toLowerCase();
 
       let url = '/api/pelanggaran-murids';
@@ -277,6 +300,7 @@
       if(tglMulai) params.push(`tanggal_from=${tglMulai}`);
       if(tglSelesai) params.push(`tanggal_to=${tglSelesai}`);
       if(kelas) params.push(`kelas=${encodeURIComponent(kelas)}`);
+      if(tahunAjaranId) params.push(`tahun_ajaran_id=${tahunAjaranId}`);
       if(params.length > 0) url += '?' + params.join('&');
 
       const res = await fetch(url, { headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${accessToken}` } });
@@ -294,7 +318,9 @@
             d.pelanggaran ? d.pelanggaran.nama_pelanggaran : '',
             d.pelanggaran ? d.pelanggaran.kategori_pelanggaran : '',
             d.pelapor || '',
-            d.keterangan || ''
+            d.keterangan || '',
+            d.tahun_ajaran ? d.tahun_ajaran.nama : '',
+            d.tahun_ajaran ? d.tahun_ajaran.semester : ''
           ].join(' ').toLowerCase();
           return hay.indexOf(search) !== -1;
         });

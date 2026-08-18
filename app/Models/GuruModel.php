@@ -14,9 +14,16 @@ class GuruModel extends Model
     protected $protectFields    = true;
     protected $allowedFields    = ['nip', 'nama', 'gender', 'jabatan', 'no_telp'];
 
-    public function getByFilters(?string $nama = null, ?string $nip = null): array
+    public function getByFilters(?string $nama = null, ?string $nip = null, ?string $search = null): array
     {
         $builder = $this->builder();
+
+        if ($search !== null && $search !== '') {
+            $builder->groupStart()
+                ->like('nama', $search)
+                ->orLike('nip', $search)
+                ->groupEnd();
+        }
 
         if ($nama !== null && $nama !== '') {
             $builder->like('nama', $nama);
