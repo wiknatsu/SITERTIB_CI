@@ -313,12 +313,12 @@
           ${totalPelanggaran > 0 ? `
             <div class="space-y-0 relative mt-4">
               ${pelanggaran.map((item, index) => `
-                <div class="relative pl-8 sm:pl-12 pb-8 last:pb-0 group">
+                <div class="relative pl-8 sm:pl-12 pb-10 last:pb-0 group">
                   <!-- Timeline Line -->
-                  ${index !== pelanggaran.length - 1 ? `<div class="absolute left-[11px] sm:left-[19px] top-8 bottom-[-8px] w-0.5 bg-slate-200 dark:bg-slate-700 group-hover:bg-error/40 transition-colors duration-300 rounded-full"></div>` : ''}
+                  ${index !== pelanggaran.length - 1 ? `<div class="absolute left-[11px] sm:left-[19px] top-6 bottom-[-24px] w-0.5 bg-slate-200 dark:bg-slate-700 group-hover:bg-error/40 transition-colors duration-300 rounded-full"></div>` : ''}
                   
                   <!-- Timeline Dot -->
-                  <div class="absolute left-0 sm:left-2 top-3 w-6 h-6 rounded-full border-4 border-white dark:border-slate-900 bg-error flex items-center justify-center shadow-sm z-10 group-hover:scale-125 transition-transform duration-300">
+                  <div class="absolute left-0 sm:left-2 top-6 w-6 h-6 rounded-full border-4 border-white dark:border-slate-900 bg-error flex items-center justify-center shadow-sm z-10 group-hover:scale-125 transition-transform duration-300">
                     <div class="w-1.5 h-1.5 bg-white rounded-full"></div>
                   </div>
 
@@ -326,11 +326,11 @@
                   <div class="bg-white dark:bg-slate-800/60 rounded-2xl border p-5 sm:p-6 shadow-sm hover:shadow-lg transition-all duration-300 border-slate-200 dark:border-slate-700 hover:border-error/40">
                     
                     <div class="flex flex-col gap-3 mb-4">
-                      <div class="flex items-center gap-2 flex-wrap">
-                         <span class="px-2.5 py-1 text-[11px] uppercase tracking-wider font-bold rounded-md bg-error/10 text-error border border-error/20">
+                      <div class="flex items-center gap-3 flex-wrap">
+                         <span class="px-3 py-1.5 text-[11px] leading-none uppercase tracking-wider font-extrabold rounded-md bg-error/10 text-error border border-error/20 flex items-center justify-center">
                            ${item.pelanggaran?.kategori_pelanggaran || 'Kategori'}
                          </span>
-                         <span class="text-xs font-semibold flex items-center gap-1.5 text-slate-500 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-md border border-slate-200 dark:border-slate-700">
+                         <span class="text-xs font-semibold flex items-center gap-1.5 text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-md border border-slate-200 dark:border-slate-700 leading-none">
                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                            ${item.tanggal_pelanggaran ? new Date(item.tanggal_pelanggaran).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-'}
                          </span>
