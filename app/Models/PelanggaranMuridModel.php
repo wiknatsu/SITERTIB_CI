@@ -73,7 +73,8 @@ class PelanggaranMuridModel extends Model
             pelanggaran.kategori_pelanggaran AS pelanggaran_kategori_pelanggaran,
             pelanggaran.kode_pelanggaran AS pelanggaran_kode_pelanggaran,
             tahun_ajaran.nama AS tahun_ajaran_nama,
-            tahun_ajaran.semester AS tahun_ajaran_semester
+            tahun_ajaran.semester AS tahun_ajaran_semester,
+            tahun_ajaran.is_active AS tahun_ajaran_is_active
         ');
 
         $builder->join('murid', 'murid.id = pelanggaran_murid.murid_id', 'left');
@@ -138,9 +139,10 @@ class PelanggaranMuridModel extends Model
                     'kode_pelanggaran'     => $row['pelanggaran_kode_pelanggaran'],
                 ],
                 'tahun_ajaran' => [
-                    'id'       => $row['tahun_ajaran_id'],
-                    'nama'     => $row['tahun_ajaran_nama'],
-                    'semester' => $row['tahun_ajaran_semester'],
+                    'id'        => $row['tahun_ajaran_id'],
+                    'nama'      => $row['tahun_ajaran_nama'],
+                    'semester'  => $row['tahun_ajaran_semester'],
+                    'is_active' => $row['tahun_ajaran_is_active'],
                 ],
             ];
         }, $rows);
