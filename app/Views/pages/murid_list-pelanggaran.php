@@ -253,7 +253,6 @@
       const totalPelanggaran = data.total_pelanggaran ?? pelanggaran.length;
 
       resultContainer.innerHTML = `
-      resultContainer.innerHTML = `
         <div class="glass rounded-3xl p-6 lg:p-10 shadow-xl shadow-slate-200/50 dark:shadow-none border border-white/50 dark:border-slate-800">
           
           <!-- Header Profile -->
