@@ -51,6 +51,12 @@
     -webkit-text-fill-color: transparent;
     user-select: none;
   }
+  /* Keep slate text readable against the dark result cards. */
+  .dark .text-slate-400 { color: #94a3b8 !important; }
+  .dark .text-slate-500 { color: #cbd5e1 !important; }
+  .dark .text-slate-600 { color: #cbd5e1 !important; }
+  .dark .text-slate-700 { color: #e2e8f0 !important; }
+  .dark .text-slate-800 { color: #f8fafc !important; }
   @media (min-width: 640px) {
     .profile-avatar-text {
       font-size: 42px;
