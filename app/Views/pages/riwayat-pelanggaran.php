@@ -104,7 +104,7 @@
           <th class="cursor-pointer select-none" data-sort="tahun_ajaran_nama" onclick="window.tableManagers['rwPagination'].setSort('tahun_ajaran_nama')">
             <div class="flex items-center gap-1">Tahun Ajaran <span class="sort-icon"></span></div>
           </th>
-          <th style="width:100px;" class="admin-only hidden">Aksi</th>
+          <th style="width:140px;" class="role-actions hidden">Aksi</th>
         </tr>
       </thead>
       <tbody id="tableBody">
@@ -117,7 +117,20 @@
   <div id="rwPagination" class="mt-4 border-t pt-4" style="border-color: var(--border-subtle);"></div>
 </div>
 
-<!-- Edit Modal (Admin Only) -->
+<!-- Detail Modal -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal-box">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-h3">Detail Pelanggaran</h2>
+      <button class="btn-icon" onclick="closeDetailModal()">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div id="detailContent" class="space-y-4"></div>
+  </div>
+</div>
+
+<!-- Edit Modal (Admin and owning Guru) -->
 <div class="modal-overlay" id="formModal">
   <div class="modal-box">
     <div class="flex items-center justify-between mb-6">
@@ -183,6 +196,8 @@
 <?= $this->section('custom-js') ?>
 <script>
   let isAdmin = false;
+  let isGuru = false;
+  let currentUserName = '';
   let allData = [];
   let deleteId = null;
 
@@ -251,6 +266,7 @@
       const taSemester = d.tahun_ajaran && d.tahun_ajaran.semester ? d.tahun_ajaran.semester.charAt(0).toUpperCase() + d.tahun_ajaran.semester.slice(1) : '';
       const taDisplay = taNama !== '-' ? `${taNama}${taSemester ? ' (' + taSemester + ')' : ''}` : '-';
 
+      const canEdit = isAdmin || (isGuru && d.pelapor === currentUserName);
       return `
       <tr>
         <td><span class="text-caption">${formatDate(d.tanggal_pelanggaran)}</span></td>
@@ -260,15 +276,20 @@
         <td>${d.pelanggaran ? getBadge(d.pelanggaran.kategori_pelanggaran) : '-'}</td>
         <td>${d.pelapor || '-'}</td>
         <td><span class="text-caption">${taDisplay}</span></td>
-        ${isAdmin ? `
+        ${(isAdmin || isGuru) ? `
         <td>
           <div class="flex items-center gap-2">
-            <button class="btn-icon" title="Edit" onclick='openEditModal(${JSON.stringify(d).replace(/'/g, "&apos;")})'>
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+            <button class="btn-icon" title="Lihat Detail" onclick='openDetailModal(${JSON.stringify(d).replace(/'/g, "&apos;")})'>
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
             </button>
+            ${canEdit ? `<button class="btn-icon" title="Edit" onclick='openEditModal(${JSON.stringify(d).replace(/'/g, "&apos;")})'>
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+            </button>` : ''}
+            ${isAdmin ? `
             <button class="btn-icon danger" title="Hapus" onclick="openDeleteModal(${d.id})">
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
             </button>
+            ` : ''}
           </div>
         </td>` : ''}
       </tr>`;
@@ -276,7 +297,7 @@
 
     window.tableManagers['rwPagination'].emptyRenderFn = () => {
       document.getElementById('tableBody').innerHTML = `
-        <tr><td colspan="${isAdmin ? 9 : 8}">
+        <tr><td colspan="${isAdmin || isGuru ? 9 : 8}">
           <div class="empty-state">
             <div class="empty-icon"><svg class="w-8 h-8" style="color:var(--text-muted);" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>
             <h3 class="text-h3 mb-1">Belum Ada Riwayat</h3>
@@ -349,9 +370,26 @@
     });
   }
 
-  // ============= ADMIN MODALS =============
+  function openDetailModal(d) {
+    const ta = d.tahun_ajaran && d.tahun_ajaran.nama
+      ? `${d.tahun_ajaran.nama} (${d.tahun_ajaran.semester || '-'})`
+      : '-';
+    document.getElementById('detailContent').innerHTML = `
+      <div><span class="form-label">Tanggal Kejadian</span><p>${formatDate(d.tanggal_pelanggaran)}</p></div>
+      <div><span class="form-label">Siswa</span><p>${d.murid?.nama || 'Data terhapus'} (${d.murid?.kelas || '-'})</p></div>
+      <div><span class="form-label">NIS / NISN</span><p>${d.murid?.nis || '-'} / ${d.murid?.nisn || '-'}</p></div>
+      <div><span class="form-label">Pelanggaran</span><p>${d.pelanggaran?.nama_pelanggaran || '-'} ${d.pelanggaran?.kode_pelanggaran ? `(${d.pelanggaran.kode_pelanggaran})` : ''}</p></div>
+      <div><span class="form-label">Kategori</span><p>${d.pelanggaran?.kategori_pelanggaran || '-'}</p></div>
+      <div><span class="form-label">Pelapor</span><p>${d.pelapor || '-'}</p></div>
+      <div><span class="form-label">Tahun Ajaran</span><p>${ta}</p></div>
+      <div><span class="form-label">Keterangan</span><p>${d.keterangan || '-'}</p></div>`;
+    document.getElementById('detailModal').classList.add('active');
+  }
+  function closeDetailModal() { document.getElementById('detailModal').classList.remove('active'); }
+
+  // ============= EDIT MODALS =============
   function openEditModal(d) {
-    if(!isAdmin) return;
+    if(!isAdmin && !(isGuru && d.pelapor === currentUserName)) return;
     document.getElementById('editId').value = d.id;
     document.getElementById('formMurid').value = d.murid_id || '';
     document.getElementById('formPelanggaran').value = d.pelanggaran_id || '';
@@ -455,8 +493,13 @@
     document.getElementById('userAvatar').textContent = (user.guru?.nama || user.username).charAt(0).toUpperCase();
     
     isAdmin = user.role === 'admin';
+    isGuru = user.role === 'guru';
+    currentUserName = user.guru?.nama || user.username;
     if(isAdmin) {
       document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
+    }
+    if(isAdmin || isGuru) {
+      document.querySelectorAll('.role-actions').forEach(el => el.classList.remove('hidden'));
     }
     // Load options (murid, kelas, pelanggaran) for filters and admin modals
     loadOptions();

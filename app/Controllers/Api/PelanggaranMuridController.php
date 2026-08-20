@@ -113,6 +113,17 @@ class PelanggaranMuridController extends BaseController
             return $this->failNotFound('Pelanggaran Murid not found');
         }
 
+        $session = session();
+        $isGuru = $session->get('role') === 'guru';
+        if ($isGuru) {
+            $user = model('UserModel')->find($session->get('user_id'));
+            $guru = $user !== null && !empty($user['guru_id']) ? model('GuruModel')->find($user['guru_id']) : null;
+
+            if ($guru === null || $dataExist['pelapor'] !== $guru['nama']) {
+                return $this->failForbidden('Guru hanya dapat mengedit pelanggaran yang dilaporkannya sendiri.');
+            }
+        }
+
         $rules = [
             'murid_id' => 'permit_empty|integer',
             'pelanggaran_id' => 'permit_empty|integer',
@@ -132,6 +143,10 @@ class PelanggaranMuridController extends BaseController
             if ($value !== null && $value !== '') {
                 $data[$field] = $value;
             }
+        }
+
+        if ($isGuru) {
+            unset($data['pelapor']);
         }
 
         if (empty($data)) {
